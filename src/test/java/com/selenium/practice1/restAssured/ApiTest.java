@@ -17,8 +17,8 @@ public class ApiTest {
 
 	String applicationId = "10B6B2A1-F3A1-7CBD-FFA6-8EC43F365300";
 	String restApiKey = "0A8394C7-45FD-4427-8782-73FCC75954BC";
+	String CloudAPIKey = "5 AF5AAFA-FA9C-4710-9549-E791C534CA4F";
 
-	JsonPath path;
 	String userToken = "";
 	String ownerId = "";
 
@@ -27,9 +27,10 @@ public class ApiTest {
 		RestAssured.baseURI = "https://knowingtrade.backendless.app/api/users";
 	}
 
+	// CHANGE EMAIL BEFORE running test IN VERIFY REGISTRATION TEST AND LOGIN TEST
 	@Test
 	public void verifyRegistration() {
-		String email = "sim65@gmail.com";
+		String email = "s14@gmail.com";
 		String password = "password1";
 
 		RequestSpecification request = RestAssured.given();
@@ -44,15 +45,15 @@ public class ApiTest {
 		request.body(jsonObject);
 
 		Response response = request.post("/register");
+		JsonPath jsonPath = response.jsonPath();
 
 		Assert.assertEquals(200, response.statusCode());
 
-		JsonPath path = response.jsonPath();
-
-		String respEmail = path.getString("email");
-		String respPassword = path.getString("password");
+		String getEmail = jsonPath.getString("email");
+		String getpassword = jsonPath.getString("password");
 
 		Assert.assertEquals(200, response.statusCode());
+		System.out.println("User successfully registered :" + email + "   " + password);
 
 	}
 
@@ -62,17 +63,15 @@ public class ApiTest {
 		RequestSpecification request = RestAssured.given();
 		request.header("Content-Type", "application/json");
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("login", "sim65@gmail.com");
+		jsonObject.put("login", "s14@gmail.com");
 		jsonObject.put("password", "password1");
 		request.body(jsonObject);
 		Response response = request.post("/login");
-		JsonPath path = response.jsonPath();
+		JsonPath jpath = response.jsonPath();
 		Assert.assertEquals(200, response.statusCode());
-
-		userToken = path.getString("user-token");
-
-		path.getString("objectId");
-
+		userToken = jpath.getString("user-token");
+		ownerId = jpath.getString("ownerId");
+		System.out.println("User token and id is : " + userToken + " & " + ownerId);
 	}
 
 	@Test
@@ -84,9 +83,11 @@ public class ApiTest {
 		request.header("user-token", ownerId);
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("email", "sim44@gmail.com");
-		jsonObject.put("password", "password1");
+		jsonObject.put("password", "password2");
+
 		request.body(jsonObject);
 		response = request.put(ownerId);
 
 	}
+
 }
