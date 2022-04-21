@@ -14,6 +14,7 @@ import static io.restassured.RestAssured.*;
 
 public class ApiTest {
 	Response response;
+	JsonPath path;
 
 	String applicationId = "10B6B2A1-F3A1-7CBD-FFA6-8EC43F365300";
 	String restApiKey = "0A8394C7-45FD-4427-8782-73FCC75954BC";
@@ -27,10 +28,9 @@ public class ApiTest {
 		RestAssured.baseURI = "https://knowingtrade.backendless.app/api/users";
 	}
 
-	// CHANGE EMAIL BEFORE running test IN VERIFY REGISTRATION TEST AND LOGIN TEST
 	@Test
 	public void verifyRegistration() {
-		String email = "s14@gmail.com";
+		String email = "h@gmail.com";
 		String password = "password1";
 
 		RequestSpecification request = RestAssured.given();
@@ -45,12 +45,10 @@ public class ApiTest {
 		request.body(jsonObject);
 
 		Response response = request.post("/register");
-		JsonPath jsonPath = response.jsonPath();
+		JsonPath path = response.jsonPath();
+		String getEmail = path.getString("email");
 
-		Assert.assertEquals(200, response.statusCode());
-
-		String getEmail = jsonPath.getString("email");
-		String getpassword = jsonPath.getString("password");
+		String getpassword = path.getString("password");
 
 		Assert.assertEquals(200, response.statusCode());
 		System.out.println("User successfully registered :" + email + "   " + password);
@@ -63,15 +61,20 @@ public class ApiTest {
 		RequestSpecification request = RestAssured.given();
 		request.header("Content-Type", "application/json");
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("login", "s14@gmail.com");
+		jsonObject.put("login", "h@gmail.com");
 		jsonObject.put("password", "password1");
 		request.body(jsonObject);
 		Response response = request.post("/login");
-		JsonPath jpath = response.jsonPath();
+		JsonPath path = response.jsonPath();
+
 		Assert.assertEquals(200, response.statusCode());
-		userToken = jpath.getString("user-token");
-		ownerId = jpath.getString("ownerId");
+
+		userToken = path.getString("user-token");
+		ownerId = path.getString("ownerId");
 		System.out.println("User token and id is : " + userToken + " & " + ownerId);
+		Assert.assertTrue(ownerId != null);
+		Assert.assertTrue("Invalid code", ownerId.equals(path.getString("objectId")));
+
 	}
 
 	@Test
@@ -82,12 +85,18 @@ public class ApiTest {
 		request.header("Content-Type", "application/json");
 		request.header("user-token", ownerId);
 		JSONObject jsonObject = new JSONObject();
-		jsonObject.put("email", "sim44@gmail.com");
-		jsonObject.put("password", "password2");
+
+		jsonObject.put("email", "s22@gmail.com");
+		jsonObject.put("password", "password1");
 
 		request.body(jsonObject);
 		response = request.put(ownerId);
+		path = response.jsonPath();
+		userToken = path.getString("user-token");
+		ownerId = path.getString("ownerId");
+
+		System.out.println(path.get());
+
 
 	}
-
 }
